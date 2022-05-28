@@ -28,10 +28,10 @@ self.addEventListener('install',e =>{
             return cache.addAll(urlsToCache)
             .then(() => {
                 self.skipWaiting();
-            })
-            .catch(err => {
-                console.log('no se ha registrado la cache',err);
             });
+        })
+        .catch(err => {
+            console.log('no se ha registrado la cache',err);
         })
     );
 });
@@ -49,12 +49,24 @@ self.addEventListener('activate', e => {
                             return caches.delete(cacheName);
                         }
                     })
-                )
+                );
             })
             .then(()=>{
                 self.clients.claim();
             })
             
-        )
+        );
 });
 //evento fetch
+
+self.addEventListener('fetch',e=>{
+    e.respondWith(
+        caches.match(e.request)
+        .then(res=>{
+            if(res){
+                return res;
+            }
+            return fetch(e.request);
+        })
+    )
+});
